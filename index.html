@@ -1,0 +1,1153 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="theme-color" content="#ffffff">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="default">
+    <title>LinkPad - Save What Matters</title>
+    <link rel="manifest" href="./manifest.json">
+    <link rel="apple-touch-icon" href="./icon-512.png">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        :root {
+            --primary: #6366f1;
+            --primary-dark: #4f46e5;
+            --primary-light: #818cf8;
+            --secondary: #ec4899;
+            --bg: #f8fafc;
+            --surface: #ffffff;
+            --surface-light: #f1f5f9;
+            --text: #0f172a;
+            --text-secondary: #64748b;
+            --success: #10b981;
+            --danger: #ef4444;
+            --warning: #f59e0b;
+            --border: rgba(0, 0, 0, 0.06);
+            --shadow: 0 8px 30px rgba(0, 0, 0, 0.04);
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            min-height: 100vh;
+            overflow-x: hidden;
+            position: relative;
+        }
+
+        /* Animated Background */
+        .bg-animation {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+            overflow: hidden;
+        }
+
+        .bg-animation::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(circle at 20% 80%, rgba(99, 102, 241, 0.08) 0%, transparent 50%),
+                radial-gradient(circle at 80% 20%, rgba(236, 72, 153, 0.08) 0%, transparent 50%),
+                radial-gradient(circle at 40% 40%, rgba(99, 102, 241, 0.04) 0%, transparent 40%);
+            animation: bgMove 20s ease-in-out infinite;
+        }
+
+        @keyframes bgMove {
+
+            0%,
+            100% {
+                transform: translate(0, 0) rotate(0deg);
+            }
+
+            33% {
+                transform: translate(30px, -30px) rotate(120deg);
+            }
+
+            66% {
+                transform: translate(-20px, 20px) rotate(240deg);
+            }
+        }
+
+        /* Header */
+        .header {
+            padding: 20px;
+            background: rgba(255, 255, 255, 0.8);
+            backdrop-filter: blur(20px);
+            border-bottom: 1px solid var(--border);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .header-content {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            max-width: 600px;
+            margin: 0 auto;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .logo-icon {
+            width: 44px;
+            height: 44px;
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            border-radius: 14px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+            box-shadow: 0 4px 15px rgba(99, 102, 241, 0.4);
+            animation: pulse 2s ease-in-out infinite;
+        }
+
+        @keyframes pulse {
+
+            0%,
+            100% {
+                transform: scale(1);
+            }
+
+            50% {
+                transform: scale(1.05);
+            }
+        }
+
+        .logo-text {
+            font-size: 24px;
+            font-weight: 800;
+            background: linear-gradient(135deg, var(--text), var(--primary-light));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .stats {
+            display: flex;
+            gap: 16px;
+            font-size: 12px;
+            color: var(--text-secondary);
+        }
+
+        .stat-item {
+            text-align: center;
+        }
+
+        .stat-value {
+            font-size: 20px;
+            font-weight: 700;
+            color: var(--text);
+            display: block;
+        }
+
+        /* Container */
+        .container {
+            max-width: 600px;
+            margin: 0 auto;
+            padding: 20px;
+            padding-bottom: 100px;
+        }
+
+        /* Input Section */
+        .input-section {
+            background: var(--surface);
+            border-radius: 24px;
+            padding: 24px;
+            margin-bottom: 24px;
+            border: 1px solid var(--border);
+            box-shadow: var(--shadow);
+            transform: translateY(0);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .input-section:focus-within {
+            transform: translateY(-2px);
+            box-shadow: 0 12px 40px rgba(99, 102, 241, 0.2);
+            border-color: rgba(99, 102, 241, 0.3);
+        }
+
+        .input-group {
+            margin-bottom: 16px;
+        }
+
+        .input-group:last-child {
+            margin-bottom: 0;
+        }
+
+        .input-label {
+            display: block;
+            font-size: 12px;
+            font-weight: 600;
+            color: var(--text-secondary);
+            margin-bottom: 8px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .input-field {
+            width: 100%;
+            padding: 16px;
+            background: var(--surface-light);
+            border: 2px solid transparent;
+            border-radius: 16px;
+            color: var(--text);
+            font-size: 16px;
+            transition: all 0.3s ease;
+            outline: none;
+        }
+
+        .input-field:focus {
+            border-color: var(--primary);
+            background: rgba(99, 102, 241, 0.1);
+        }
+
+        .input-field::placeholder {
+            color: rgba(148, 163, 184, 0.5);
+        }
+
+        .tags-input {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            padding: 12px;
+            min-height: 56px;
+            align-items: center;
+        }
+
+        .tag {
+            background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-size: 13px;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            animation: tagIn 0.3s ease;
+        }
+
+        @keyframes tagIn {
+            from {
+                transform: scale(0);
+                opacity: 0;
+            }
+
+            to {
+                transform: scale(1);
+                opacity: 1;
+            }
+        }
+
+        .tag-remove {
+            cursor: pointer;
+            opacity: 0.7;
+            transition: opacity 0.2s;
+        }
+
+        .tag-remove:hover {
+            opacity: 1;
+        }
+
+        .tag-input-field {
+            background: transparent;
+            border: none;
+            color: var(--text);
+            font-size: 14px;
+            flex: 1;
+            min-width: 100px;
+            outline: none;
+        }
+
+        /* Add Button */
+        .add-btn {
+            width: 100%;
+            padding: 18px;
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            border: none;
+            border-radius: 16px;
+            color: white;
+            font-size: 16px;
+            font-weight: 700;
+            cursor: pointer;
+            position: relative;
+            overflow: hidden;
+            transition: transform 0.2s, box-shadow 0.2s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+
+        .add-btn:active {
+            transform: scale(0.98);
+        }
+
+        .add-btn::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
+            transition: left 0.5s;
+        }
+
+        .add-btn:hover::before {
+            left: 100%;
+        }
+
+        /* Filter Tabs */
+        .filter-tabs {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 20px;
+            overflow-x: auto;
+            padding-bottom: 8px;
+            scrollbar-width: none;
+        }
+
+        .filter-tabs::-webkit-scrollbar {
+            display: none;
+        }
+
+        .filter-tab {
+            padding: 10px 20px;
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 24px;
+            color: var(--text-secondary);
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            white-space: nowrap;
+            transition: all 0.3s ease;
+        }
+
+        .filter-tab.active {
+            background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+            color: white;
+            border-color: transparent;
+            box-shadow: 0 4px 15px rgba(99, 102, 241, 0.4);
+        }
+
+        /* Links Grid */
+        .links-grid {
+            display: grid;
+            gap: 16px;
+        }
+
+        .link-card {
+            background: var(--surface);
+            border-radius: 20px;
+            padding: 20px;
+            border: 1px solid var(--border);
+            position: relative;
+            overflow: hidden;
+            transition: all 0.3s ease;
+            animation: cardIn 0.4s ease;
+            box-shadow: var(--shadow);
+        }
+
+        @keyframes cardIn {
+            from {
+                opacity: 0;
+                transform: translateY(20px) scale(0.95);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0) scale(1);
+            }
+        }
+
+        .link-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 12px 40px rgba(0, 0, 0, 0.4);
+            border-color: rgba(99, 102, 241, 0.2);
+        }
+
+        .link-card.favorite::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 4px;
+            height: 100%;
+            background: linear-gradient(to bottom, var(--secondary), var(--primary));
+        }
+
+        .link-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: start;
+            margin-bottom: 12px;
+        }
+
+        .link-title {
+            font-size: 17px;
+            font-weight: 700;
+            color: var(--text);
+            line-height: 1.4;
+            flex: 1;
+            margin-right: 12px;
+            word-break: break-word;
+        }
+
+        .link-actions {
+            display: flex;
+            gap: 8px;
+        }
+
+        .action-btn {
+            width: 36px;
+            height: 36px;
+            border-radius: 10px;
+            border: none;
+            background: var(--surface-light);
+            color: var(--text-secondary);
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s ease;
+            font-size: 16px;
+        }
+
+        .action-btn:hover {
+            background: var(--primary);
+            color: white;
+            transform: scale(1.1);
+        }
+
+        .action-btn.favorite-btn.active {
+            background: var(--secondary);
+            color: white;
+        }
+
+        .action-btn.delete-btn:hover {
+            background: var(--danger);
+        }
+
+        .link-url {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            color: var(--primary-light);
+            font-size: 13px;
+            margin-bottom: 12px;
+            word-break: break-all;
+            text-decoration: none;
+            transition: color 0.2s;
+        }
+
+        .link-url:hover {
+            color: var(--primary);
+        }
+
+        .link-meta {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+
+        .link-tags {
+            display: flex;
+            gap: 6px;
+            flex-wrap: wrap;
+        }
+
+        .link-tag {
+            padding: 4px 10px;
+            background: rgba(99, 102, 241, 0.15);
+            color: var(--primary-light);
+            border-radius: 12px;
+            font-size: 11px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .link-tag:hover {
+            background: rgba(99, 102, 241, 0.3);
+            transform: translateY(-1px);
+        }
+
+        .link-date {
+            font-size: 11px;
+            color: var(--text-secondary);
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+
+        /* Empty State */
+        .empty-state {
+            text-align: center;
+            padding: 60px 20px;
+            color: var(--text-secondary);
+        }
+
+        .empty-icon {
+            font-size: 64px;
+            margin-bottom: 16px;
+            opacity: 0.5;
+            animation: float 3s ease-in-out infinite;
+        }
+
+        @keyframes float {
+
+            0%,
+            100% {
+                transform: translateY(0);
+            }
+
+            50% {
+                transform: translateY(-10px);
+            }
+        }
+
+        .empty-title {
+            font-size: 20px;
+            font-weight: 700;
+            color: var(--text);
+            margin-bottom: 8px;
+        }
+
+        /* Toast Notification */
+        .toast {
+            position: fixed;
+            bottom: 100px;
+            left: 50%;
+            transform: translateX(-50%) translateY(100px);
+            background: var(--surface);
+            color: var(--text);
+            padding: 16px 24px;
+            border-radius: 16px;
+            font-weight: 600;
+            box-shadow: 0 12px 40px rgba(0, 0, 0, 0.1);
+            border: 1px solid var(--border);
+            z-index: 1000;
+            opacity: 0;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .toast.show {
+            transform: translateX(-50%) translateY(0);
+            opacity: 1;
+        }
+
+        .toast.success {
+            border-left: 4px solid var(--success);
+        }
+
+        .toast.error {
+            border-left: 4px solid var(--danger);
+        }
+
+        /* FAB */
+        .fab {
+            position: fixed;
+            bottom: 24px;
+            right: 24px;
+            width: 60px;
+            height: 60px;
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            border: none;
+            border-radius: 50%;
+            color: white;
+            font-size: 28px;
+            cursor: pointer;
+            box-shadow: 0 6px 20px rgba(99, 102, 241, 0.5);
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 99;
+        }
+
+        .fab:hover {
+            transform: scale(1.1) rotate(90deg);
+            box-shadow: 0 8px 30px rgba(99, 102, 241, 0.6);
+        }
+
+        /* Modal */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            backdrop-filter: blur(10px);
+            z-index: 200;
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.3s ease;
+        }
+
+        .modal-overlay.active {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        .modal {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            background: var(--surface);
+            border-radius: 32px 32px 0 0;
+            padding: 24px;
+            z-index: 201;
+            transform: translateY(100%);
+            transition: transform 0.3s ease;
+            max-height: 90vh;
+            overflow-y: auto;
+            box-shadow: 0 -10px 40px rgba(0, 0, 0, 0.1);
+        }
+
+        .modal-overlay.active .modal {
+            transform: translateY(0);
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .modal-title {
+            font-size: 20px;
+            font-weight: 700;
+        }
+
+        .modal-close {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            border: none;
+            background: var(--surface-light);
+            color: var(--text);
+            font-size: 20px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .modal-close:hover {
+            background: var(--danger);
+            transform: rotate(90deg);
+        }
+
+        /* Responsive */
+        @media (max-width: 480px) {
+            .header {
+                padding: 16px;
+            }
+
+            .container {
+                padding: 16px;
+                padding-bottom: 100px;
+            }
+
+            .input-section {
+                padding: 20px;
+            }
+        }
+
+        /* Loading Animation */
+        .loading {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 3px solid rgba(255, 255, 255, .3);
+            border-radius: 50%;
+            border-top-color: white;
+            animation: spin 1s ease-in-out infinite;
+        }
+
+        @keyframes spin {
+            to {
+                transform: rotate(360deg);
+            }
+        }
+    </style>
+    <base target="_blank">
+</head>
+
+<body>
+    <div class="bg-animation"></div>
+
+    <header class="header">
+        <div class="header-content">
+            <div class="logo">
+                <div class="logo-icon">🔗</div>
+                <div class="logo-text">LinkPad</div>
+            </div>
+            <div class="stats">
+                <div class="stat-item">
+                    <span class="stat-value" id="totalCount">0</span>
+                    <span>Links</span>
+                </div>
+                <div class="stat-item">
+                    <span class="stat-value" id="favCount">0</span>
+                    <span>Favorites</span>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <div class="container">
+        <!-- Input Section -->
+        <div class="input-section" id="inputSection">
+            <div class="input-group">
+                <label class="input-label">Link Title</label>
+                <input type="text" class="input-field" id="linkTitle" placeholder="e.g., Awesome Design Resources">
+            </div>
+
+            <div class="input-group">
+                <label class="input-label">URL</label>
+                <input type="url" class="input-field" id="linkUrl" placeholder="https://example.com">
+            </div>
+
+            <div class="input-group">
+                <label class="input-label">Tags (Press Enter to add)</label>
+                <div class="input-field tags-input" id="tagsContainer">
+                    <input type="text" class="tag-input-field" id="tagInput" placeholder="design, tools, article...">
+                </div>
+            </div>
+
+            <button class="add-btn" id="addBtn">
+                <span>✨</span>
+                <span>Save Link</span>
+            </button>
+        </div>
+
+        <!-- Filter Tabs -->
+        <div class="filter-tabs">
+            <button class="filter-tab active" data-filter="all">All Links</button>
+            <button class="filter-tab" data-filter="favorites">⭐ Favorites</button>
+            <button class="filter-tab" data-filter="recent">Recent</button>
+        </div>
+
+        <!-- Links Grid -->
+        <div class="links-grid" id="linksGrid">
+            <!-- Links will be rendered here -->
+        </div>
+
+        <!-- Empty State -->
+        <div class="empty-state" id="emptyState" style="display: none;">
+            <div class="empty-icon">📭</div>
+            <div class="empty-title">No links yet</div>
+            <p>Start saving your important links above!</p>
+        </div>
+    </div>
+
+    <!-- Floating Action Button -->
+    <button class="fab" id="fab" title="Quick Add">+</button>
+
+    <!-- Toast -->
+    <div class="toast" id="toast"></div>
+
+    <!-- Modal for Mobile Input -->
+    <div class="modal-overlay" id="modalOverlay">
+        <div class="modal">
+            <div class="modal-header">
+                <h3 class="modal-title">Add New Link</h3>
+                <button class="modal-close" id="modalClose">×</button>
+            </div>
+            <div id="modalContent">
+                <!-- Cloned input section will go here -->
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // State Management
+        let links = JSON.parse(localStorage.getItem('linkpad_links')) || [];
+        let currentFilter = 'all';
+        let tags = [];
+
+        // DOM Elements
+        const elements = {
+            linkTitle: document.getElementById('linkTitle'),
+            linkUrl: document.getElementById('linkUrl'),
+            tagInput: document.getElementById('tagInput'),
+            tagsContainer: document.getElementById('tagsContainer'),
+            addBtn: document.getElementById('addBtn'),
+            linksGrid: document.getElementById('linksGrid'),
+            emptyState: document.getElementById('emptyState'),
+            totalCount: document.getElementById('totalCount'),
+            favCount: document.getElementById('favCount'),
+            toast: document.getElementById('toast'),
+            fab: document.getElementById('fab'),
+            modalOverlay: document.getElementById('modalOverlay'),
+            modalClose: document.getElementById('modalClose'),
+            modalContent: document.getElementById('modalContent'),
+            inputSection: document.getElementById('inputSection')
+        };
+
+        // Initialize
+        function init() {
+            renderLinks();
+            updateStats();
+            setupEventListeners();
+            checkUrlParams();
+        }
+
+        // Event Listeners
+        function setupEventListeners() {
+            // Add link
+            elements.addBtn.addEventListener('click', addLink);
+
+            // Tag input
+            elements.tagInput.addEventListener('keydown', handleTagInput);
+            elements.tagsContainer.addEventListener('click', () => elements.tagInput.focus());
+
+            // Filter tabs
+            document.querySelectorAll('.filter-tab').forEach(tab => {
+                tab.addEventListener('click', () => setFilter(tab.dataset.filter));
+            });
+
+            // FAB
+            elements.fab.addEventListener('click', openModal);
+
+            // Modal
+            elements.modalClose.addEventListener('click', closeModal);
+            elements.modalOverlay.addEventListener('click', (e) => {
+                if (e.target === elements.modalOverlay) closeModal();
+            });
+
+            // Enter key on inputs
+            elements.linkTitle.addEventListener('keypress', (e) => {
+                if (e.key === 'Enter') elements.linkUrl.focus();
+            });
+            elements.linkUrl.addEventListener('keypress', (e) => {
+                if (e.key === 'Enter') elements.tagInput.focus();
+            });
+        }
+
+        // Tag Management
+        function handleTagInput(e) {
+            if (e.key === 'Enter' || e.key === ',') {
+                e.preventDefault();
+                const value = elements.tagInput.value.trim();
+                if (value && !tags.includes(value)) {
+                    tags.push(value);
+                    renderTags();
+                }
+                elements.tagInput.value = '';
+            } else if (e.key === 'Backspace' && !elements.tagInput.value && tags.length > 0) {
+                tags.pop();
+                renderTags();
+            }
+        }
+
+        function renderTags() {
+            const existingTags = elements.tagsContainer.querySelectorAll('.tag');
+            existingTags.forEach(tag => tag.remove());
+
+            tags.forEach((tag, index) => {
+                const tagEl = document.createElement('div');
+                tagEl.className = 'tag';
+                tagEl.innerHTML = `
+                    ${tag}
+                    <span class="tag-remove" onclick="removeTag(${index})">×</span>
+                `;
+                elements.tagsContainer.insertBefore(tagEl, elements.tagInput);
+            });
+        }
+
+        window.removeTag = function (index) {
+            tags.splice(index, 1);
+            renderTags();
+        };
+
+        // Add Link
+        function addLink() {
+            const title = elements.linkTitle.value.trim();
+            let url = elements.linkUrl.value.trim();
+
+            if (!title || !url) {
+                showToast('Please fill in both title and URL', 'error');
+                return;
+            }
+
+            // Add https if missing
+            if (!/^https?:\/\//i.test(url)) {
+                url = 'https://' + url;
+            }
+
+            const link = {
+                id: Date.now(),
+                title,
+                url,
+                tags: [...tags],
+                favorite: false,
+                createdAt: new Date().toISOString()
+            };
+
+            links.unshift(link);
+            saveLinks();
+
+            // Reset form
+            elements.linkTitle.value = '';
+            elements.linkUrl.value = '';
+            tags = [];
+            renderTags();
+
+            renderLinks();
+            updateStats();
+            showToast('Link saved successfully! ✨', 'success');
+
+            // Close modal if open
+            closeModal();
+        }
+
+        // Render Links
+        function renderLinks() {
+            let filteredLinks = [...links];
+
+            if (currentFilter === 'favorites') {
+                filteredLinks = filteredLinks.filter(l => l.favorite);
+            } else if (currentFilter === 'recent') {
+                filteredLinks = filteredLinks.slice(0, 10);
+            }
+
+            if (filteredLinks.length === 0) {
+                elements.linksGrid.style.display = 'none';
+                elements.emptyState.style.display = 'block';
+                return;
+            }
+
+            elements.linksGrid.style.display = 'grid';
+            elements.emptyState.style.display = 'none';
+
+            elements.linksGrid.innerHTML = filteredLinks.map(link => `
+                <div class="link-card ${link.favorite ? 'favorite' : ''}" data-id="${link.id}">
+                    <div class="link-header">
+                        <div class="link-title">${escapeHtml(link.title)}</div>
+                        <div class="link-actions">
+                            <button class="action-btn favorite-btn ${link.favorite ? 'active' : ''}" onclick="toggleFavorite(${link.id})" title="Toggle Favorite">
+                                ${link.favorite ? '⭐' : '☆'}
+                            </button>
+                            <button class="action-btn" onclick="copyLink('${link.url}')" title="Copy Link">
+                                📋
+                            </button>
+                            <button class="action-btn delete-btn" onclick="deleteLink(${link.id})" title="Delete">
+                                🗑️
+                            </button>
+                        </div>
+                    </div>
+                    <a href="${link.url}" target="_blank" rel="noopener noreferrer" class="link-url">
+                        🔗 ${truncateUrl(link.url)}
+                    </a>
+                    <div class="link-meta">
+                        <div class="link-tags">
+                            ${link.tags.map(tag => `<span class="link-tag" onclick="filterByTag('${tag}')">#${escapeHtml(tag)}</span>`).join('')}
+                            ${link.tags.length === 0 ? '<span style="color: var(--text-secondary); font-size: 11px;">No tags</span>' : ''}
+                        </div>
+                        <div class="link-date">
+                            📅 ${formatDate(link.createdAt)}
+                        </div>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        // Actions
+        window.toggleFavorite = function (id) {
+            const link = links.find(l => l.id === id);
+            if (link) {
+                link.favorite = !link.favorite;
+                saveLinks();
+                renderLinks();
+                updateStats();
+                showToast(link.favorite ? 'Added to favorites ⭐' : 'Removed from favorites', 'success');
+            }
+        };
+
+        window.deleteLink = function (id) {
+            if (confirm('Are you sure you want to delete this link?')) {
+                links = links.filter(l => l.id !== id);
+                saveLinks();
+                renderLinks();
+                updateStats();
+                showToast('Link deleted', 'success');
+            }
+        };
+
+        window.copyLink = function (url) {
+            navigator.clipboard.writeText(url).then(() => {
+                showToast('Link copied to clipboard! 📋', 'success');
+            });
+        };
+
+        window.filterByTag = function (tag) {
+            // Could implement tag filtering here
+            showToast(`Filtering by #${tag} coming soon!`, 'success');
+        };
+
+        // Filter Management
+        function setFilter(filter) {
+            currentFilter = filter;
+            document.querySelectorAll('.filter-tab').forEach(tab => {
+                tab.classList.toggle('active', tab.dataset.filter === filter);
+            });
+            renderLinks();
+        }
+
+        // Stats
+        function updateStats() {
+            elements.totalCount.textContent = links.length;
+            elements.favCount.textContent = links.filter(l => l.favorite).length;
+        }
+
+        // Storage
+        function saveLinks() {
+            localStorage.setItem('linkpad_links', JSON.stringify(links));
+        }
+
+        // Utilities
+        function escapeHtml(text) {
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        }
+
+        function truncateUrl(url) {
+            try {
+                const urlObj = new URL(url);
+                return urlObj.hostname + urlObj.pathname.substring(0, 30) + (urlObj.pathname.length > 30 ? '...' : '');
+            } catch {
+                return url.substring(0, 40) + (url.length > 40 ? '...' : '');
+            }
+        }
+
+        function formatDate(dateString) {
+            const date = new Date(dateString);
+            const now = new Date();
+            const diff = (now - date) / 1000;
+
+            if (diff < 60) return 'Just now';
+            if (diff < 3600) return Math.floor(diff / 60) + 'm ago';
+            if (diff < 86400) return Math.floor(diff / 3600) + 'h ago';
+            if (diff < 604800) return Math.floor(diff / 86400) + 'd ago';
+            return date.toLocaleDateString();
+        }
+
+        function showToast(message, type = 'success') {
+            elements.toast.textContent = message;
+            elements.toast.className = `toast ${type} show`;
+            setTimeout(() => {
+                elements.toast.classList.remove('show');
+            }, 3000);
+        }
+
+        // Modal
+        function openModal() {
+            elements.modalContent.innerHTML = '';
+            const clone = elements.inputSection.cloneNode(true);
+            clone.id = 'mobileInputSection';
+            elements.modalContent.appendChild(clone);
+
+            // Setup mobile inputs
+            const mTitle = clone.querySelector('#linkTitle');
+            const mUrl = clone.querySelector('#linkUrl');
+            const mTagInput = clone.querySelector('#tagInput');
+            const mTagsContainer = clone.querySelector('#tagsContainer');
+            const mAddBtn = clone.querySelector('#addBtn');
+
+            let mTags = [];
+
+            mTagInput.addEventListener('keydown', (e) => {
+                if (e.key === 'Enter' || e.key === ',') {
+                    e.preventDefault();
+                    const value = mTagInput.value.trim();
+                    if (value && !mTags.includes(value)) {
+                        mTags.push(value);
+                        renderMobileTags();
+                    }
+                    mTagInput.value = '';
+                }
+            });
+
+            function renderMobileTags() {
+                const existing = mTagsContainer.querySelectorAll('.tag');
+                existing.forEach(t => t.remove());
+
+                mTags.forEach((tag, idx) => {
+                    const tagEl = document.createElement('div');
+                    tagEl.className = 'tag';
+                    tagEl.innerHTML = `${tag}<span class="tag-remove" onclick="this.parentElement.remove(); mTags.splice(${idx}, 1)">×</span>`;
+                    mTagsContainer.insertBefore(tagEl, mTagInput);
+                });
+            }
+
+            mAddBtn.addEventListener('click', () => {
+                elements.linkTitle.value = mTitle.value;
+                elements.linkUrl.value = mUrl.value;
+                tags = mTags;
+                renderTags();
+                addLink();
+            });
+
+            elements.modalOverlay.classList.add('active');
+        }
+
+        function closeModal() {
+            elements.modalOverlay.classList.remove('active');
+        }
+
+        // Check for shared URL
+        function checkUrlParams() {
+            const params = new URLSearchParams(window.location.search);
+            const sharedUrl = params.get('url') || params.get('text');
+            if (sharedUrl) {
+                elements.linkUrl.value = sharedUrl;
+                elements.linkTitle.focus();
+            }
+        }
+
+        // Service Worker for PWA
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('./sw.js')
+                    .then(reg => console.log('PWA Service Worker registered successfully! ✨'))
+                    .catch(err => console.log('Service Worker registration failed:', err));
+            });
+        }
+
+        // Initialize app
+        init();
+    </script>
+</body>
+
+</html>

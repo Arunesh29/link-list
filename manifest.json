@@ -1,0 +1,71 @@
+{
+  "id": "linkpad-pwa",
+  "name": "LinkPad",
+  "short_name": "LinkPad",
+  "description": "Safe, organize and share your most important links with a minimalist, premium interface.",
+  "start_url": "./index.html",
+  "display": "standalone",
+  "background_color": "#ffffff",
+  "theme_color": "#ffffff",
+  "dir": "ltr",
+  "lang": "en-US",
+  "categories": [
+    "productivity",
+    "utilities"
+  ],
+  "orientation": "any",
+  "scope": "/",
+  "prefer_related_applications": false,
+  "icons": [
+    {
+      "src": "./icon-512.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "./icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "./icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable"
+    }
+  ],
+  "screenshots": [
+    {
+      "src": "./screenshot-mobile.png",
+      "sizes": "1080x1920",
+      "type": "image/png",
+      "form_factor": "narrow",
+      "label": "LinkPad Dashboard"
+    }
+  ],
+  "shortcuts": [
+    {
+      "name": "Add New Link",
+      "short_name": "Add Link",
+      "description": "Quickly save a new link to your LinkPad collection.",
+      "url": "./index.html?action=add",
+      "icons": [
+        {
+          "src": "./icon-512.png",
+          "sizes": "192x192"
+        }
+      ]
+    }
+  ],
+  "display_override": [
+    "window-controls-overlay",
+    "minimal-ui",
+    "browser"
+  ],
+  "handle_links": "auto",
+  "launch_handler": {
+    "client_mode": "navigate-existing"
+  }
+}
